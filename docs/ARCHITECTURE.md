@@ -6,7 +6,7 @@ SSH Key Manager is built with a modular architecture focusing on security, exten
 
 ## Core Components
 
-### 1. Core Module (`ssh_key_manager/core/`)
+### 1. Core Module (`keyctl/core/`)
 
 #### Key Management (`key_manager.py`)
 - Key creation and deletion
@@ -25,7 +25,7 @@ SSH Key Manager is built with a modular architecture focusing on security, exten
 - Provider-specific validations
 - Custom host management
 
-### 2. Security Module (`ssh_key_manager/security/`)
+### 2. Security Module (`keyctl/security/`)
 
 #### Key Security (`key_security.py`)
 - Permission validation
@@ -39,7 +39,7 @@ SSH Key Manager is built with a modular architecture focusing on security, exten
 - Restore functionality
 - Verification systems
 
-### 3. UI Module (`ssh_key_manager/ui/`)
+### 3. UI Module (`keyctl/ui/`)
 
 #### Interface (`interface.py`)
 - Interactive CLI
@@ -53,7 +53,7 @@ SSH Key Manager is built with a modular architecture focusing on security, exten
 - Status messages
 - Error displays
 
-### 4. Utils Module (`ssh_key_manager/utils/`)
+### 4. Utils Module (`keyctl/utils/`)
 
 #### Logging (`logger.py`)
 - Operation logging
@@ -120,11 +120,9 @@ The system is designed to be extensible in several areas:
 
 ## Configuration
 
-### File Locations
-- SSH Keys: `~/.ssh/`
-- Config: `~/.ssh_key_manager.json`
-- Logs: `~/.ssh_key_manager.log`
-- Backups: `~/ssh_backup/`
+The configuration files are stored in standard locations:
+- Config: `~/.keyctl.json`
+- Logs: `~/.keyctl.log`
 
 ### Configuration Format
 ```json

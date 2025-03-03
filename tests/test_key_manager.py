@@ -6,9 +6,9 @@ from unittest.mock import patch, MagicMock
 from datetime import datetime, timedelta
 
 # Import the modules to test
-from ssh_key_manager.core.key_manager import KeyManager
-from ssh_key_manager.security.key_security import KeySecurity
-from ssh_key_manager.utils.config import Config
+from keyctl.core.key_manager import KeyManager
+from keyctl.security.key_security import KeySecurity
+from keyctl.utils.config import Config
 
 # Test fixtures
 @pytest.fixture
@@ -21,24 +21,15 @@ def temp_ssh_dir(tmp_path):
 @pytest.fixture
 def temp_config_file(tmp_path):
     """Create a temporary config file."""
-    config_file = tmp_path / ".ssh_key_manager.json"
-    config = {
-        "last_used": None,
-        "repo_keys": {},
-        "default_key": None,
-        "timeout": None,
-        "key_expiration": {},
-        "key_comments": {},
-        "key_usage": {}
-    }
-    config_file.write_text(json.dumps(config))
+    config_file = tmp_path / ".keyctl.json"
+    config_file.write_text("{}")
     return config_file
 
 @pytest.fixture
 def key_manager(temp_ssh_dir, temp_config_file):
     """Create a KeyManager instance with temporary paths."""
-    with patch('ssh_key_manager.core.key_manager.SSH_DIR', temp_ssh_dir), \
-         patch('ssh_key_manager.core.key_manager.CONFIG_PATH', temp_config_file):
+    with patch('keyctl.core.key_manager.SSH_DIR', temp_ssh_dir), \
+         patch('keyctl.core.key_manager.CONFIG_PATH', temp_config_file):
         return KeyManager()
 
 # Test key creation

@@ -4,7 +4,7 @@
 
 ### Clone Repository
 ```bash
-ssh-key-manager repo clone <url> [options]
+keyctl repo clone <url> [options]
 ```
 
 Clone a Git repository using a specific SSH key and configure Git user settings.
@@ -25,19 +25,19 @@ The command supports:
 Examples:
 ```bash
 # Clone with full URL and Git configuration
-ssh-key-manager repo clone git@github.com:username/repo.git \
+keyctl repo clone git@github.com:username/repo.git \
   --key id_ed25519_github \
   --git-email "user@example.com" \
   --git-name "Your Name"
 
 # Clone with shorthand and Git configuration
-ssh-key-manager repo clone username/repo \
+keyctl repo clone username/repo \
   --key id_ed25519_github \
   --git-email "user@example.com" \
   --git-name "Your Name"
 
 # Clone to specific path
-ssh-key-manager repo clone username/repo \
+keyctl repo clone username/repo \
   --key id_ed25519_github \
   --path ~/projects/repo \
   --git-email "user@example.com" \
@@ -46,7 +46,7 @@ ssh-key-manager repo clone username/repo \
 
 ### Link Repository
 ```bash
-ssh-key-manager repo link <repo-path> <key-name>
+keyctl repo link <repo-path> <key-name>
 ```
 
 Link an SSH key to a local repository for automatic key selection.
@@ -55,15 +55,15 @@ Examples:
 ```bash
 # Link from repository directory
 cd ~/projects/repo
-ssh-key-manager repo link . id_ed25519_github
+keyctl repo link . id_ed25519_github
 
 # Link by specifying path
-ssh-key-manager repo link ~/projects/repo id_ed25519_github
+keyctl repo link ~/projects/repo id_ed25519_github
 ```
 
 ### List Repository Links
 ```bash
-ssh-key-manager repo list-links [options]
+keyctl repo list-links [options]
 ```
 
 List repository-key associations.
@@ -75,13 +75,13 @@ Options:
 Examples:
 ```bash
 # List all links
-ssh-key-manager repo list-links
+keyctl repo list-links
 
 # Filter by key
-ssh-key-manager repo list-links --key id_ed25519_github
+keyctl repo list-links --key id_ed25519_github
 
 # Filter by repository
-ssh-key-manager repo list-links --repo ~/projects/repo
+keyctl repo list-links --repo ~/projects/repo
 ```
 
 ## Best Practices

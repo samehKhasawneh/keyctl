@@ -57,93 +57,93 @@ The SSH Key Manager provides a comprehensive command-line interface with the fol
 
 ```bash
 # Key Management
-ssh-key-manager create <key-name> [--type TYPE] [--comment COMMENT] [--expiry DAYS]
-ssh-key-manager list [--show-details]
-ssh-key-manager add <key-name> [--timeout MINUTES]
-ssh-key-manager remove [key-name]
-ssh-key-manager rotate <key-name>
+keyctl create <key-name> [--type TYPE] [--comment COMMENT] [--expiry DAYS]
+keyctl list [--show-details]
+keyctl add <key-name> [--timeout MINUTES]
+keyctl remove [key-name]
+keyctl rotate <key-name>
 
 # Key Validation
-ssh-key-manager validate <provider>
+keyctl validate <provider>
 
 # Security Analysis
-ssh-key-manager analyze [key-name]
+keyctl analyze [key-name]
 
 # Backup and Restore
-ssh-key-manager backup [--dir BACKUP_DIR]
-ssh-key-manager restore <backup-path>
+keyctl backup [--dir BACKUP_DIR]
+keyctl restore <backup-path>
 
 # SSH Config Management
-ssh-key-manager config list
-ssh-key-manager config host <host-pattern> [--key KEY] [--user USER] [--port PORT]
-ssh-key-manager config remove <host>
+keyctl config list
+keyctl config host <host-pattern> [--key KEY] [--user USER] [--port PORT]
+keyctl config remove <host>
 
 # Statistics and Monitoring
-ssh-key-manager stats [key-name]
+keyctl stats [key-name]
 
 # Expiration Management
-ssh-key-manager expire set <key-name> <days>
-ssh-key-manager expire remove <key-name>
-ssh-key-manager expire check
+keyctl expire set <key-name> <days>
+keyctl expire remove <key-name>
+keyctl expire check
 
 # Repository Management
-ssh-key-manager repo clone <url> [--key KEY] [--provider PROVIDER] [--path PATH] [--git-email EMAIL] [--git-name NAME]
-ssh-key-manager repo link <repo-path> <key-name>
-ssh-key-manager repo list-links [--repo REPO] [--key KEY]
+keyctl repo clone <url> [--key KEY] [--provider PROVIDER] [--path PATH] [--git-email EMAIL] [--git-name NAME]
+keyctl repo link <repo-path> <key-name>
+keyctl repo list-links [--repo REPO] [--key KEY]
 ```
 
 ### Examples
 
 1. Create a new Ed25519 key with expiration:
    ```bash
-   ssh-key-manager create id_ed25519_github --comment "GitHub key" --expiry 90
+   keyctl create id_ed25519_github --comment "GitHub key" --expiry 90
    ```
 
 2. List all keys with details:
    ```bash
-   ssh-key-manager list --show-details
+   keyctl list --show-details
    ```
 
 3. Add a key with timeout:
    ```bash
-   ssh-key-manager add id_ed25519_github --timeout 60
+   keyctl add id_ed25519_github --timeout 60
    ```
 
 4. Validate a key with GitHub:
    ```bash
-   ssh-key-manager validate github.com
+   keyctl validate github.com
    ```
 
 5. Analyze key strength:
    ```bash
-   ssh-key-manager analyze id_ed25519_github
+   keyctl analyze id_ed25519_github
    ```
 
 6. Backup all keys:
    ```bash
-   ssh-key-manager backup --dir ~/ssh_keys_backup
+   keyctl backup --dir ~/ssh_keys_backup
    ```
 
 7. Configure SSH for GitHub:
    ```bash
-   ssh-key-manager config host "github.com" --key ~/.ssh/id_ed25519_github --user git
+   keyctl config host "github.com" --key ~/.ssh/id_ed25519_github --user git
    ```
 
 8. View key statistics:
    ```bash
-   ssh-key-manager stats
+   keyctl stats
    ```
 
 9. Clone a repository with a specific key and Git configuration:
    ```bash
    # Using full URL with Git configuration
-   ssh-key-manager repo clone git@github.com:username/repo.git \
+   keyctl repo clone git@github.com:username/repo.git \
      --key id_ed25519_github \
      --git-email "user@example.com" \
      --git-name "Your Name"
 
    # Using shorthand with Git configuration
-   ssh-key-manager repo clone username/repo \
+   keyctl repo clone username/repo \
      --key id_ed25519_github \
      --git-email "user@example.com" \
      --git-name "Your Name"
@@ -153,10 +153,10 @@ ssh-key-manager repo list-links [--repo REPO] [--key KEY]
     ```bash
     # Link from within the repository
     cd ~/projects/my-repo
-    ssh-key-manager repo link . id_ed25519_github
+    keyctl repo link . id_ed25519_github
 
     # Link by specifying path
-    ssh-key-manager repo link ~/projects/my-repo id_ed25519_github
+    keyctl repo link ~/projects/my-repo id_ed25519_github
     ```
 
 ## Common Use Cases
@@ -168,38 +168,38 @@ A common scenario is managing multiple GitHub accounts (e.g., personal and work 
 1. Create separate keys for each account:
    ```bash
    # Personal account key
-   ssh-key-manager create id_ed25519_github_personal --comment "GitHub Personal"
+   keyctl create id_ed25519_github_personal --comment "GitHub Personal"
 
    # Work account key
-   ssh-key-manager create id_ed25519_github_work --comment "GitHub Work"
+   keyctl create id_ed25519_github_work --comment "GitHub Work"
    ```
 
 2. Configure SSH to use different hostnames:
    ```bash
    # Configure for personal account (default)
-   ssh-key-manager config host "github.com" --key ~/.ssh/id_ed25519_github_personal --user git
+   keyctl config host "github.com" --key ~/.ssh/id_ed25519_github_personal --user git
 
    # Configure for work account
-   ssh-key-manager config host "github.com-work" --key ~/.ssh/id_ed25519_github_work --user git
+   keyctl config host "github.com-work" --key ~/.ssh/id_ed25519_github_work --user git
    ```
 
 3. Add the public keys to respective GitHub accounts:
    ```bash
    # List keys to get the public key content
-   ssh-key-manager list --show-details
+   keyctl list --show-details
    ```
    Then add each public key to the corresponding GitHub account (Settings → SSH and GPG keys).
 
 4. Clone repositories and configure Git user:
    ```bash
    # Personal project with Git configuration
-   ssh-key-manager repo clone git@github.com:personal-username/project.git \
+   keyctl repo clone git@github.com:personal-username/project.git \
      --key id_ed25519_github_personal \
      --git-email "personal@example.com" \
      --git-name "Personal Name"
 
    # Work project with Git configuration
-   ssh-key-manager repo clone git@github.com-work:work-username/project.git \
+   keyctl repo clone git@github.com-work:work-username/project.git \
      --key id_ed25519_github_work \
      --git-email "work@company.com" \
      --git-name "Work Name"
@@ -210,10 +210,10 @@ A common scenario is managing multiple GitHub accounts (e.g., personal and work 
 5. Manage active keys:
    ```bash
    # Add work key with timeout
-   ssh-key-manager add id_ed25519_github_work --timeout 60  # Active for 60 minutes
+   keyctl add id_ed25519_github_work --timeout 60  # Active for 60 minutes
 
    # Or switch between keys
-   ssh-key-manager add id_ed25519_github_personal
+   keyctl add id_ed25519_github_personal
    ```
 
 This setup ensures:
@@ -229,20 +229,20 @@ Another common scenario is managing different SSH keys for different repositorie
 1. Create keys for different contexts:
    ```bash
    # Create keys for different organizations
-   ssh-key-manager create id_ed25519_org1 --comment "Organization 1"
-   ssh-key-manager create id_ed25519_org2 --comment "Organization 2"
+   keyctl create id_ed25519_org1 --comment "Organization 1"
+   keyctl create id_ed25519_org2 --comment "Organization 2"
    ```
 
 2. Clone repositories with specific keys and configurations:
    ```bash
    # Clone and configure for org1
-   ssh-key-manager repo clone org1/project \
+   keyctl repo clone org1/project \
      --key id_ed25519_org1 \
      --git-email "user@org1.com" \
      --git-name "Your Name at Org1"
 
    # Clone and configure for org2
-   ssh-key-manager repo clone org2/project \
+   keyctl repo clone org2/project \
      --key id_ed25519_org2 \
      --git-email "user@org2.com" \
      --git-name "Your Name at Org2"
@@ -251,17 +251,17 @@ Another common scenario is managing different SSH keys for different repositorie
 3. Link existing repositories to keys:
    ```bash
    # Link repositories to their respective keys
-   ssh-key-manager repo link ~/projects/org1-project id_ed25519_org1
-   ssh-key-manager repo link ~/projects/org2-project id_ed25519_org2
+   keyctl repo link ~/projects/org1-project id_ed25519_org1
+   keyctl repo link ~/projects/org2-project id_ed25519_org2
    ```
 
 4. View repository-key associations:
    ```bash
    # List all links
-   ssh-key-manager repo list-links
+   keyctl repo list-links
 
    # Filter by key
-   ssh-key-manager repo list-links --key id_ed25519_org1
+   keyctl repo list-links --key id_ed25519_org1
    ```
 
 This setup provides:
@@ -277,28 +277,28 @@ Managing key rotation and expiration is crucial for security:
 1. Set up keys with expiration:
    ```bash
    # Create a key that expires in 90 days
-   ssh-key-manager create id_ed25519_project --comment "Project Key" --expiry 90
+   keyctl create id_ed25519_project --comment "Project Key" --expiry 90
 
    # Check expiration status
-   ssh-key-manager expire check
+   keyctl expire check
    ```
 
 2. Rotate keys before expiration:
    ```bash
    # Rotate the key (automatically updates configs and backups old key)
-   ssh-key-manager rotate id_ed25519_project
+   keyctl rotate id_ed25519_project
 
    # Verify the new key
-   ssh-key-manager validate github.com
+   keyctl validate github.com
    ```
 
 3. Manage temporary access:
    ```bash
    # Add key with 1-hour timeout
-   ssh-key-manager add id_ed25519_project --timeout 60
+   keyctl add id_ed25519_project --timeout 60
 
    # Remove key after use
-   ssh-key-manager remove id_ed25519_project
+   keyctl remove id_ed25519_project
    ```
 
 ### Security Monitoring and Maintenance
@@ -308,28 +308,28 @@ Regular security checks and maintenance:
 1. Analyze key strength:
    ```bash
    # Check all keys
-   ssh-key-manager analyze
+   keyctl analyze
 
    # Check specific key
-   ssh-key-manager analyze id_ed25519_project
+   keyctl analyze id_ed25519_project
    ```
 
 2. Track key usage:
    ```bash
    # View usage statistics
-   ssh-key-manager stats
+   keyctl stats
 
    # Check specific key stats
-   ssh-key-manager stats id_ed25519_project
+   keyctl stats id_ed25519_project
    ```
 
 3. Regular backups:
    ```bash
    # Create dated backup
-   ssh-key-manager backup --dir ~/ssh_backups/$(date +%Y%m%d)
+   keyctl backup --dir ~/ssh_backups/$(date +%Y%m%d)
 
    # Restore from backup if needed
-   ssh-key-manager restore ~/ssh_backups/20240101
+   keyctl restore ~/ssh_backups/20240101
    ```
 
 ### SSH Config Management
@@ -339,19 +339,19 @@ Efficiently manage SSH configurations:
 1. Set up host configurations:
    ```bash
    # Configure for specific host
-   ssh-key-manager config host "dev.example.com" --key ~/.ssh/id_ed25519_dev --user admin --port 2222
+   keyctl config host "dev.example.com" --key ~/.ssh/id_ed25519_dev --user admin --port 2222
 
    # Configure for wildcard domain
-   ssh-key-manager config host "*.staging.example.com" --key ~/.ssh/id_ed25519_staging --user deploy
+   keyctl config host "*.staging.example.com" --key ~/.ssh/id_ed25519_staging --user deploy
    ```
 
 2. View and manage configurations:
    ```bash
    # List all configurations
-   ssh-key-manager config list
+   keyctl config list
 
    # Remove outdated config
-   ssh-key-manager config remove "old.example.com"
+   keyctl config remove "old.example.com"
    ```
 
 ### Provider Integration
@@ -361,26 +361,26 @@ Working with different Git providers:
 1. Set up provider-specific keys:
    ```bash
    # Create keys for different providers
-   ssh-key-manager create id_ed25519_github --comment "GitHub"
-   ssh-key-manager create id_ed25519_gitlab --comment "GitLab"
-   ssh-key-manager create id_ed25519_bitbucket --comment "Bitbucket"
+   keyctl create id_ed25519_github --comment "GitHub"
+   keyctl create id_ed25519_gitlab --comment "GitLab"
+   keyctl create id_ed25519_bitbucket --comment "Bitbucket"
    ```
 
 2. Validate keys with providers:
    ```bash
    # Validate with each provider
-   ssh-key-manager validate github.com
-   ssh-key-manager validate gitlab.com
-   ssh-key-manager validate bitbucket.org
+   keyctl validate github.com
+   keyctl validate gitlab.com
+   keyctl validate bitbucket.org
    ```
 
 3. Clone repositories:
    ```bash
    # Clone using provider shorthand
-   ssh-key-manager repo clone username/repo --key id_ed25519_github --provider github.com
+   keyctl repo clone username/repo --key id_ed25519_github --provider github.com
 
    # Clone GitLab project
-   ssh-key-manager repo clone username/repo --key id_ed25519_gitlab --provider gitlab.com
+   keyctl repo clone username/repo --key id_ed25519_gitlab --provider gitlab.com
    ```
 
 ### Team Collaboration
@@ -390,16 +390,16 @@ Managing keys in a team environment:
 1. Set up project-specific keys:
    ```bash
    # Create key for team project
-   ssh-key-manager create id_ed25519_team_project --comment "Team Project" --expiry 180
+   keyctl create id_ed25519_team_project --comment "Team Project" --expiry 180
 
    # Link to project repositories
-   ssh-key-manager repo link ~/projects/team-repo id_ed25519_team_project
+   keyctl repo link ~/projects/team-repo id_ed25519_team_project
    ```
 
 2. Clone and configure team repositories:
    ```bash
    # Clone team repository with configuration
-   ssh-key-manager repo clone team/project \
+   keyctl repo clone team/project \
      --key id_ed25519_team_project \
      --git-email "your.name@team.com" \
      --git-name "Your Full Name"
@@ -408,25 +408,25 @@ Managing keys in a team environment:
 3. Share public keys:
    ```bash
    # List key details for sharing
-   ssh-key-manager list --show-details
+   keyctl list --show-details
    ```
 
 4. Track team key usage:
    ```bash
    # Monitor key usage
-   ssh-key-manager stats id_ed25519_team_project
+   keyctl stats id_ed25519_team_project
 
    # Check key expiration status
-   ssh-key-manager expire check
+   keyctl expire check
    ```
 
 5. Maintain security:
    ```bash
    # Regular strength analysis
-   ssh-key-manager analyze id_ed25519_team_project
+   keyctl analyze id_ed25519_team_project
 
    # Rotate team keys
-   ssh-key-manager rotate id_ed25519_team_project
+   keyctl rotate id_ed25519_team_project
    ```
 
 These use cases demonstrate:
@@ -440,7 +440,7 @@ These use cases demonstrate:
 ## Project Structure
 
 ```
-ssh_key_manager/
+keyctl/
 ├── core/               # Core functionality
 │   ├── __init__.py
 │   └── key_manager.py
@@ -495,10 +495,10 @@ The project follows PEP 8 guidelines. To check and format code:
 
 ```bash
 # Check code style
-pylint ssh_key_manager
+pylint keyctl
 
 # Format code
-black ssh_key_manager
+black keyctl
 ```
 
 ## Security Considerations

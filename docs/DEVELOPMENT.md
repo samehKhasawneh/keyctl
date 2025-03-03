@@ -34,17 +34,15 @@ pre-commit install
 ## Project Structure
 
 ```
-ssh-key-manager/
-├── docs/                    # Documentation
-├── tests/                   # Test files
-├── ssh_key_manager/        # Main package
-│   ├── core/               # Core functionality
-│   ├── security/           # Security features
-│   ├── ui/                 # User interface
-│   └── utils/              # Utilities
-├── README.md               # Project overview
-├── requirements.txt        # Production dependencies
-└── requirements-dev.txt    # Development dependencies
+project/
+├── docs/              # Documentation
+├── tests/            # Test files
+├── keyctl/        # Main package
+│   ├── core/         # Core functionality
+│   ├── security/     # Security operations
+│   ├── ui/          # User interface
+│   └── utils/       # Utility functions
+└── setup.py         # Package configuration
 ```
 
 ## Coding Standards
@@ -89,7 +87,7 @@ from pathlib import Path
 import pytest
 
 # Local imports
-from ssh_key_manager.core import KeyManager
+from keyctl.core import KeyManager
 ```
 
 2. **Class Structure**
@@ -121,13 +119,13 @@ pytest
 pytest tests/test_key_manager.py
 
 # Run with coverage
-pytest --cov=ssh_key_manager
+pytest --cov=keyctl
 ```
 
 ### Writing Tests
 ```python
 import pytest
-from ssh_key_manager.core import KeyManager
+from keyctl.core import KeyManager
 
 def test_key_creation():
     manager = KeyManager()
@@ -176,7 +174,7 @@ def test_key_creation():
 ### Building Documentation
 ```bash
 # Generate API documentation
-pdoc --html ssh_key_manager
+pdoc --html keyctl
 
 # Build user guide
 mkdocs build
@@ -335,7 +333,7 @@ Run the test suite:
 pytest
 
 # Run with coverage
-pytest --cov=ssh_key_manager
+pytest --cov=keyctl
 
 # Run specific test file
 pytest tests/test_key_manager.py
@@ -346,13 +344,13 @@ pytest tests/test_key_manager.py
 Follow PEP 8 guidelines and use provided tools:
 ```bash
 # Check style
-pylint ssh_key_manager
+pylint keyctl
 
 # Format code
-black ssh_key_manager
+black keyctl
 
 # Check types
-mypy ssh_key_manager
+mypy keyctl
 ```
 
 ## Adding New Features
