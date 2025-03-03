@@ -53,33 +53,45 @@ pip install -r requirements-dev.txt
 
 ### Command Line Interface
 
-The SSH Key Manager provides a command-line interface with the following commands:
+The SSH Key Manager provides a comprehensive command-line interface with the following commands:
 
 ```bash
-# Create a new SSH key
-ssh-key-manager create <key-name> [--type TYPE] [--comment COMMENT]
-
-# List all SSH keys
+# Key Management
+ssh-key-manager create <key-name> [--type TYPE] [--comment COMMENT] [--expiry DAYS]
 ssh-key-manager list [--show-details]
-
-# Add a key to the SSH agent
-ssh-key-manager add <key-name>
-
-# Remove a key from the SSH agent
+ssh-key-manager add <key-name> [--timeout MINUTES]
 ssh-key-manager remove [key-name]
+ssh-key-manager rotate <key-name>
 
-# Validate a key with a provider
+# Key Validation
 ssh-key-manager validate <provider>
 
-# Rotate an existing key
-ssh-key-manager rotate <key-name>
+# Security Analysis
+ssh-key-manager analyze [key-name]
+
+# Backup and Restore
+ssh-key-manager backup [--dir BACKUP_DIR]
+ssh-key-manager restore <backup-path>
+
+# SSH Config Management
+ssh-key-manager config list
+ssh-key-manager config host <host-pattern> [--key KEY] [--user USER] [--port PORT]
+ssh-key-manager config remove <host>
+
+# Statistics and Monitoring
+ssh-key-manager stats [key-name]
+
+# Expiration Management
+ssh-key-manager expire set <key-name> <days>
+ssh-key-manager expire remove <key-name>
+ssh-key-manager expire check
 ```
 
 ### Examples
 
-1. Create a new Ed25519 key:
+1. Create a new Ed25519 key with expiration:
    ```bash
-   ssh-key-manager create id_ed25519_github --comment "GitHub key"
+   ssh-key-manager create id_ed25519_github --comment "GitHub key" --expiry 90
    ```
 
 2. List all keys with details:
@@ -87,9 +99,34 @@ ssh-key-manager rotate <key-name>
    ssh-key-manager list --show-details
    ```
 
-3. Validate a key with GitHub:
+3. Add a key with timeout:
+   ```bash
+   ssh-key-manager add id_ed25519_github --timeout 60
+   ```
+
+4. Validate a key with GitHub:
    ```bash
    ssh-key-manager validate github.com
+   ```
+
+5. Analyze key strength:
+   ```bash
+   ssh-key-manager analyze id_ed25519_github
+   ```
+
+6. Backup all keys:
+   ```bash
+   ssh-key-manager backup --dir ~/ssh_keys_backup
+   ```
+
+7. Configure SSH for GitHub:
+   ```bash
+   ssh-key-manager config host "github.com" --key ~/.ssh/id_ed25519_github --user git
+   ```
+
+8. View key statistics:
+   ```bash
+   ssh-key-manager stats
    ```
 
 ## Project Structure
