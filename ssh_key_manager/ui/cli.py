@@ -146,6 +146,29 @@ class CLI:
         # Check expiration
         expire_subparsers.add_parser("check", help="Check key expirations")
         
+        # Repository management
+        repo_parser = subparsers.add_parser("repo", help="Repository management")
+        repo_subparsers = repo_parser.add_subparsers(dest="repo_command")
+        
+        # Clone repository
+        clone_parser = repo_subparsers.add_parser("clone", help="Clone a repository with specific key")
+        clone_parser.add_argument("url", help="Repository URL or shorthand (e.g., owner/repo)")
+        clone_parser.add_argument("--key", help="SSH key to use")
+        clone_parser.add_argument("--provider", default="github.com", 
+                                choices=["github.com", "gitlab.com", "bitbucket.org"],
+                                help="Git provider (default: github.com)")
+        clone_parser.add_argument("--path", help="Local path to clone to")
+        
+        # Link key to repository
+        link_parser = repo_subparsers.add_parser("link", help="Link SSH key to repository")
+        link_parser.add_argument("repo_path", help="Local repository path")
+        link_parser.add_argument("key_name", help="SSH key name")
+        
+        # List repository links
+        list_links_parser = repo_subparsers.add_parser("list-links", help="List repository-key links")
+        list_links_parser.add_argument("--repo", help="Filter by repository path")
+        list_links_parser.add_argument("--key", help="Filter by key name")
+        
         return parser
 
     def run(self, args: Optional[List[str]] = None) -> int:
@@ -306,6 +329,82 @@ class CLI:
                     # Implementation for checking expirations
                     pass
                     
+            elif parsed_args.command == "repo":
+                if not parsed_args.repo_command:
+                    parser.parse_args(["repo", "--help"])
+                    return 1
+                
+                if parsed_args.repo_command == "clone":
+                    url = parsed_args.url
+                    # Handle shorthand notation (e.g., owner/repo)
+                    if "/" in url and ":" not in url and "@" not in url:
+                        url = f"git@{parsed_args.provider}:{url}.git"
+                    
+                    # Use specified key or try to find linked key
+                    key_name = parsed_args.key
+                    if not key_name:
+                        key_name = self.config.get_repo_key(url)
+                    
+                    if key_name:
+                        # Add the key to agent temporarily
+                        key_path = Path.home() / ".ssh" / key_name
+                        self.key_manager.add_to_agent(key_path)
+                    
+                    # Clone the repository
+                    try:
+                        import subprocess
+                        cmd = ["git", "clone", url]
+                        if parsed_args.path:
+                            cmd.append(parsed_args.path)
+                        
+                        result = subprocess.run(cmd, capture_output=True, text=True)
+                        if result.returncode == 0:
+                            print("Repository cloned successfully")
+                            # Save the key-repo link if key was specified
+                            if key_name:
+                                self.config.link_repo_key(url, key_name)
+                            return 0
+                        else:
+                            print(f"Failed to clone repository: {result.stderr}")
+                            return 1
+                    finally:
+                        # Remove the temporary key from agent
+                        if key_name:
+                            self.key_manager.remove_from_agent(key_path)
+                
+                elif parsed_args.repo_command == "link":
+                    try:
+                        import subprocess
+                        # Get the repository remote URL
+                        result = subprocess.run(
+                            ["git", "-C", parsed_args.repo_path, "config", "--get", "remote.origin.url"],
+                            capture_output=True, text=True
+                        )
+                        if result.returncode == 0:
+                            url = result.stdout.strip()
+                            self.config.link_repo_key(url, parsed_args.key_name)
+                            print(f"Linked {parsed_args.key_name} to {url}")
+                            return 0
+                        else:
+                            print(f"Failed to get repository URL: {result.stderr}")
+                            return 1
+                    except Exception as e:
+                        print(f"Error linking repository: {e}")
+                        return 1
+                
+                elif parsed_args.repo_command == "list-links":
+                    links = self.config.get_repo_links(
+                        repo=parsed_args.repo,
+                        key=parsed_args.key
+                    )
+                    if links:
+                        print("Repository-Key Links:")
+                        for repo_url, key_name in links.items():
+                            print(f"{repo_url} -> {key_name}")
+                    else:
+                        print("No repository-key links found")
+                    return 0
+            
         except Exception as e:
             logger.error(f"Error executing command: {e}")
             print(f"Error: {str(e)}")

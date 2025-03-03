@@ -85,6 +85,11 @@ ssh-key-manager stats [key-name]
 ssh-key-manager expire set <key-name> <days>
 ssh-key-manager expire remove <key-name>
 ssh-key-manager expire check
+
+# Repository Management
+ssh-key-manager repo clone <url> [--key KEY] [--provider PROVIDER] [--path PATH]
+ssh-key-manager repo link <repo-path> <key-name>
+ssh-key-manager repo list-links [--repo REPO] [--key KEY]
 ```
 
 ### Examples
@@ -128,6 +133,25 @@ ssh-key-manager expire check
    ```bash
    ssh-key-manager stats
    ```
+
+9. Clone a repository with a specific key:
+   ```bash
+   # Using full URL
+   ssh-key-manager repo clone git@github.com:username/repo.git --key id_ed25519_github
+
+   # Using shorthand (automatically expands to github.com)
+   ssh-key-manager repo clone username/repo --key id_ed25519_github
+   ```
+
+10. Link a key to a repository:
+    ```bash
+    # Link from within the repository
+    cd ~/projects/my-repo
+    ssh-key-manager repo link . id_ed25519_github
+
+    # Link by specifying path
+    ssh-key-manager repo link ~/projects/my-repo id_ed25519_github
+    ```
 
 ## Common Use Cases
 
@@ -183,6 +207,206 @@ This setup ensures:
 - Automatic key selection based on repository URL
 - Secure key management with optional timeouts
 - Easy key rotation and expiration management
+
+### Managing Repository-Specific Keys
+
+Another common scenario is managing different SSH keys for different repositories or organizations:
+
+1. Create keys for different contexts:
+   ```bash
+   # Create keys for different organizations
+   ssh-key-manager create id_ed25519_org1 --comment "Organization 1"
+   ssh-key-manager create id_ed25519_org2 --comment "Organization 2"
+   ```
+
+2. Clone repositories with specific keys:
+   ```bash
+   # Clone using org1's key
+   ssh-key-manager repo clone org1/project --key id_ed25519_org1
+
+   # Clone using org2's key
+   ssh-key-manager repo clone org2/project --key id_ed25519_org2
+   ```
+
+3. Link existing repositories to keys:
+   ```bash
+   # Link repositories to their respective keys
+   ssh-key-manager repo link ~/projects/org1-project id_ed25519_org1
+   ssh-key-manager repo link ~/projects/org2-project id_ed25519_org2
+   ```
+
+4. View repository-key associations:
+   ```bash
+   # List all links
+   ssh-key-manager repo list-links
+
+   # Filter by key
+   ssh-key-manager repo list-links --key id_ed25519_org1
+   ```
+
+This setup provides:
+- Automatic key selection when cloning repositories
+- Clear mapping between repositories and keys
+- Easy key rotation for specific repositories
+- Improved security through key isolation
+
+### Key Rotation and Expiration
+
+Managing key rotation and expiration is crucial for security:
+
+1. Set up keys with expiration:
+   ```bash
+   # Create a key that expires in 90 days
+   ssh-key-manager create id_ed25519_project --comment "Project Key" --expiry 90
+
+   # Check expiration status
+   ssh-key-manager expire check
+   ```
+
+2. Rotate keys before expiration:
+   ```bash
+   # Rotate the key (automatically updates configs and backups old key)
+   ssh-key-manager rotate id_ed25519_project
+
+   # Verify the new key
+   ssh-key-manager validate github.com
+   ```
+
+3. Manage temporary access:
+   ```bash
+   # Add key with 1-hour timeout
+   ssh-key-manager add id_ed25519_project --timeout 60
+
+   # Remove key after use
+   ssh-key-manager remove id_ed25519_project
+   ```
+
+### Security Monitoring and Maintenance
+
+Regular security checks and maintenance:
+
+1. Analyze key strength:
+   ```bash
+   # Check all keys
+   ssh-key-manager analyze
+
+   # Check specific key
+   ssh-key-manager analyze id_ed25519_project
+   ```
+
+2. Track key usage:
+   ```bash
+   # View usage statistics
+   ssh-key-manager stats
+
+   # Check specific key stats
+   ssh-key-manager stats id_ed25519_project
+   ```
+
+3. Regular backups:
+   ```bash
+   # Create dated backup
+   ssh-key-manager backup --dir ~/ssh_backups/$(date +%Y%m%d)
+
+   # Restore from backup if needed
+   ssh-key-manager restore ~/ssh_backups/20240101
+   ```
+
+### SSH Config Management
+
+Efficiently manage SSH configurations:
+
+1. Set up host configurations:
+   ```bash
+   # Configure for specific host
+   ssh-key-manager config host "dev.example.com" --key ~/.ssh/id_ed25519_dev --user admin --port 2222
+
+   # Configure for wildcard domain
+   ssh-key-manager config host "*.staging.example.com" --key ~/.ssh/id_ed25519_staging --user deploy
+   ```
+
+2. View and manage configurations:
+   ```bash
+   # List all configurations
+   ssh-key-manager config list
+
+   # Remove outdated config
+   ssh-key-manager config remove "old.example.com"
+   ```
+
+### Provider Integration
+
+Working with different Git providers:
+
+1. Set up provider-specific keys:
+   ```bash
+   # Create keys for different providers
+   ssh-key-manager create id_ed25519_github --comment "GitHub"
+   ssh-key-manager create id_ed25519_gitlab --comment "GitLab"
+   ssh-key-manager create id_ed25519_bitbucket --comment "Bitbucket"
+   ```
+
+2. Validate keys with providers:
+   ```bash
+   # Validate with each provider
+   ssh-key-manager validate github.com
+   ssh-key-manager validate gitlab.com
+   ssh-key-manager validate bitbucket.org
+   ```
+
+3. Clone repositories:
+   ```bash
+   # Clone using provider shorthand
+   ssh-key-manager repo clone username/repo --key id_ed25519_github --provider github.com
+
+   # Clone GitLab project
+   ssh-key-manager repo clone username/repo --key id_ed25519_gitlab --provider gitlab.com
+   ```
+
+### Team Collaboration
+
+Managing keys in a team environment:
+
+1. Set up project-specific keys:
+   ```bash
+   # Create key for team project
+   ssh-key-manager create id_ed25519_team_project --comment "Team Project" --expiry 180
+
+   # Link to project repositories
+   ssh-key-manager repo link ~/projects/team-repo id_ed25519_team_project
+   ```
+
+2. Share public keys:
+   ```bash
+   # List key details for sharing
+   ssh-key-manager list --show-details
+   ```
+
+3. Track team key usage:
+   ```bash
+   # Monitor key usage
+   ssh-key-manager stats id_ed25519_team_project
+
+   # Check key expiration status
+   ssh-key-manager expire check
+   ```
+
+4. Maintain security:
+   ```bash
+   # Regular strength analysis
+   ssh-key-manager analyze id_ed25519_team_project
+
+   # Rotate team keys
+   ssh-key-manager rotate id_ed25519_team_project
+   ```
+
+These use cases demonstrate:
+- Complete key lifecycle management
+- Security best practices
+- Team collaboration workflows
+- Integration with various providers
+- Efficient repository management
+- Regular maintenance procedures
 
 ## Project Structure
 
