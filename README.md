@@ -129,6 +129,61 @@ ssh-key-manager expire check
    ssh-key-manager stats
    ```
 
+## Common Use Cases
+
+### Managing Multiple GitHub Accounts
+
+A common scenario is managing multiple GitHub accounts (e.g., personal and work accounts) from the same machine. Here's how to set it up:
+
+1. Create separate keys for each account:
+   ```bash
+   # Personal account key
+   ssh-key-manager create id_ed25519_github_personal --comment "GitHub Personal"
+
+   # Work account key
+   ssh-key-manager create id_ed25519_github_work --comment "GitHub Work"
+   ```
+
+2. Configure SSH to use different hostnames:
+   ```bash
+   # Configure for personal account (default)
+   ssh-key-manager config host "github.com" --key ~/.ssh/id_ed25519_github_personal --user git
+
+   # Configure for work account
+   ssh-key-manager config host "github.com-work" --key ~/.ssh/id_ed25519_github_work --user git
+   ```
+
+3. Add the public keys to respective GitHub accounts:
+   ```bash
+   # List keys to get the public key content
+   ssh-key-manager list --show-details
+   ```
+   Then add each public key to the corresponding GitHub account (Settings → SSH and GPG keys).
+
+4. Clone repositories using the appropriate hostname:
+   ```bash
+   # Personal project
+   git clone git@github.com:personal-username/project.git
+
+   # Work project
+   git clone git@github.com-work:work-username/project.git
+   ```
+
+5. Manage active keys:
+   ```bash
+   # Add work key with timeout
+   ssh-key-manager add id_ed25519_github_work --timeout 60  # Active for 60 minutes
+
+   # Or switch between keys
+   ssh-key-manager add id_ed25519_github_personal
+   ```
+
+This setup ensures:
+- Complete separation between accounts
+- Automatic key selection based on repository URL
+- Secure key management with optional timeouts
+- Easy key rotation and expiration management
+
 ## Project Structure
 
 ```
