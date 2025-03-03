@@ -13,6 +13,7 @@ SSH Key Manager is built with a modular architecture focusing on security, exten
 - Key rotation
 - Permission management
 - Key validation
+- Git configuration management
 
 #### Configuration (`config_manager.py`)
 - Configuration loading/saving

@@ -87,7 +87,7 @@ ssh-key-manager expire remove <key-name>
 ssh-key-manager expire check
 
 # Repository Management
-ssh-key-manager repo clone <url> [--key KEY] [--provider PROVIDER] [--path PATH]
+ssh-key-manager repo clone <url> [--key KEY] [--provider PROVIDER] [--path PATH] [--git-email EMAIL] [--git-name NAME]
 ssh-key-manager repo link <repo-path> <key-name>
 ssh-key-manager repo list-links [--repo REPO] [--key KEY]
 ```
@@ -134,13 +134,19 @@ ssh-key-manager repo list-links [--repo REPO] [--key KEY]
    ssh-key-manager stats
    ```
 
-9. Clone a repository with a specific key:
+9. Clone a repository with a specific key and Git configuration:
    ```bash
-   # Using full URL
-   ssh-key-manager repo clone git@github.com:username/repo.git --key id_ed25519_github
+   # Using full URL with Git configuration
+   ssh-key-manager repo clone git@github.com:username/repo.git \
+     --key id_ed25519_github \
+     --git-email "user@example.com" \
+     --git-name "Your Name"
 
-   # Using shorthand (automatically expands to github.com)
-   ssh-key-manager repo clone username/repo --key id_ed25519_github
+   # Using shorthand with Git configuration
+   ssh-key-manager repo clone username/repo \
+     --key id_ed25519_github \
+     --git-email "user@example.com" \
+     --git-name "Your Name"
    ```
 
 10. Link a key to a repository:
@@ -184,14 +190,22 @@ A common scenario is managing multiple GitHub accounts (e.g., personal and work 
    ```
    Then add each public key to the corresponding GitHub account (Settings → SSH and GPG keys).
 
-4. Clone repositories using the appropriate hostname:
+4. Clone repositories and configure Git user:
    ```bash
-   # Personal project
-   git clone git@github.com:personal-username/project.git
+   # Personal project with Git configuration
+   ssh-key-manager repo clone git@github.com:personal-username/project.git \
+     --key id_ed25519_github_personal \
+     --git-email "personal@example.com" \
+     --git-name "Personal Name"
 
-   # Work project
-   git clone git@github.com-work:work-username/project.git
+   # Work project with Git configuration
+   ssh-key-manager repo clone git@github.com-work:work-username/project.git \
+     --key id_ed25519_github_work \
+     --git-email "work@company.com" \
+     --git-name "Work Name"
    ```
+
+   Note: The tool automatically configures repository-specific Git user settings, eliminating the need for manual `git config` commands.
 
 5. Manage active keys:
    ```bash
@@ -219,13 +233,19 @@ Another common scenario is managing different SSH keys for different repositorie
    ssh-key-manager create id_ed25519_org2 --comment "Organization 2"
    ```
 
-2. Clone repositories with specific keys:
+2. Clone repositories with specific keys and configurations:
    ```bash
-   # Clone using org1's key
-   ssh-key-manager repo clone org1/project --key id_ed25519_org1
+   # Clone and configure for org1
+   ssh-key-manager repo clone org1/project \
+     --key id_ed25519_org1 \
+     --git-email "user@org1.com" \
+     --git-name "Your Name at Org1"
 
-   # Clone using org2's key
-   ssh-key-manager repo clone org2/project --key id_ed25519_org2
+   # Clone and configure for org2
+   ssh-key-manager repo clone org2/project \
+     --key id_ed25519_org2 \
+     --git-email "user@org2.com" \
+     --git-name "Your Name at Org2"
    ```
 
 3. Link existing repositories to keys:
@@ -376,13 +396,22 @@ Managing keys in a team environment:
    ssh-key-manager repo link ~/projects/team-repo id_ed25519_team_project
    ```
 
-2. Share public keys:
+2. Clone and configure team repositories:
+   ```bash
+   # Clone team repository with configuration
+   ssh-key-manager repo clone team/project \
+     --key id_ed25519_team_project \
+     --git-email "your.name@team.com" \
+     --git-name "Your Full Name"
+   ```
+
+3. Share public keys:
    ```bash
    # List key details for sharing
    ssh-key-manager list --show-details
    ```
 
-3. Track team key usage:
+4. Track team key usage:
    ```bash
    # Monitor key usage
    ssh-key-manager stats id_ed25519_team_project
@@ -391,7 +420,7 @@ Managing keys in a team environment:
    ssh-key-manager expire check
    ```
 
-4. Maintain security:
+5. Maintain security:
    ```bash
    # Regular strength analysis
    ssh-key-manager analyze id_ed25519_team_project
@@ -405,7 +434,7 @@ These use cases demonstrate:
 - Security best practices
 - Team collaboration workflows
 - Integration with various providers
-- Efficient repository management
+- Efficient repository management with automatic Git configuration
 - Regular maintenance procedures
 
 ## Project Structure

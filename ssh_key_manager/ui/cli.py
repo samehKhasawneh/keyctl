@@ -158,6 +158,8 @@ class CLI:
                                 choices=["github.com", "gitlab.com", "bitbucket.org"],
                                 help="Git provider (default: github.com)")
         clone_parser.add_argument("--path", help="Local path to clone to")
+        clone_parser.add_argument("--git-email", help="Configure user.email for the repository")
+        clone_parser.add_argument("--git-name", help="Configure user.name for the repository")
         
         # Link key to repository
         link_parser = repo_subparsers.add_parser("link", help="Link SSH key to repository")
@@ -360,6 +362,17 @@ class CLI:
                         result = subprocess.run(cmd, capture_output=True, text=True)
                         if result.returncode == 0:
                             print("Repository cloned successfully")
+                            
+                            # Configure Git user if provided
+                            repo_path = parsed_args.path if parsed_args.path else url.split('/')[-1].replace('.git', '')
+                            if parsed_args.git_email or parsed_args.git_name:
+                                if parsed_args.git_email:
+                                    subprocess.run(["git", "-C", repo_path, "config", "user.email", parsed_args.git_email])
+                                    print(f"Configured Git user.email: {parsed_args.git_email}")
+                                if parsed_args.git_name:
+                                    subprocess.run(["git", "-C", repo_path, "config", "user.name", parsed_args.git_name])
+                                    print(f"Configured Git user.name: {parsed_args.git_name}")
+                            
                             # Save the key-repo link if key was specified
                             if key_name:
                                 self.config.link_repo_key(url, key_name)
