@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="keyctl",
     version="0.1.0",
-    author="SSH Key Manager Contributors",
+    author="KeyCtl Contributors",
     author_email="your.email@example.com",
     description="A comprehensive SSH key management tool",
     long_description=long_description,

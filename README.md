@@ -1,4 +1,4 @@
-# SSH Key Manager
+# KeyCtl
 
 A comprehensive SSH key management tool that helps you create, manage, and maintain your SSH keys securely.
 
@@ -35,8 +35,8 @@ A comprehensive SSH key management tool that helps you create, manage, and maint
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/ssh-key-manager.git
-   cd ssh-key-manager
+   git clone https://github.com/yourusername/keyctl.git
+   cd keyctl
    ```
 
 2. Install the package:
@@ -53,7 +53,7 @@ pip install -r requirements-dev.txt
 
 ### Command Line Interface
 
-The SSH Key Manager provides a comprehensive command-line interface with the following commands:
+KeyCtl provides a comprehensive command-line interface with the following commands:
 
 ```bash
 # Key Management
@@ -459,7 +459,7 @@ keyctl/
 
 ## Configuration
 
-The SSH Key Manager stores its configuration in `~/.ssh/.keyctl/`:
+KeyCtl stores its configuration in `~/.ssh/.keyctl/`:
 - `config.json`: General configuration and provider settings
 - `usage.json`: Key usage statistics and metadata
 
@@ -525,7 +525,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Authors
 
-SSH Key Manager Contributors
+KeyCtl Contributors
 
 ## Acknowledgments
 

@@ -11,8 +11,8 @@
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/ssh-key-manager.git
-cd ssh-key-manager
+git clone https://github.com/yourusername/keyctl.git
+cd keyctl
 ```
 
 2. Create and activate virtual environment:

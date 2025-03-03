@@ -1,5 +1,6 @@
-"""Configuration management for SSH key manager."""
+"""Configuration management for KeyCtl."""
 import json
+import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
@@ -9,7 +10,7 @@ from .logger import get_logger
 logger = get_logger(__name__)
 
 class Config:
-    """Manages configuration and persistent data for SSH key manager."""
+    """Manages configuration and persistent data for KeyCtl."""
 
     def __init__(self, config_dir: Optional[Path] = None):
         self.config_dir = config_dir or Path.home() / ".ssh" / ".keyctl"

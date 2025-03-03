@@ -1,4 +1,4 @@
-"""Logging configuration for SSH key manager."""
+"""Logging configuration for KeyCtl."""
 import logging
 import sys
 from pathlib import Path

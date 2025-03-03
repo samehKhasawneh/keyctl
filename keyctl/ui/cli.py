@@ -1,4 +1,4 @@
-"""Command-line interface for SSH key management."""
+"""Command-line interface for KeyCtl."""
 import argparse
 import sys
 from pathlib import Path
@@ -11,7 +11,7 @@ from ..utils.config import Config
 logger = get_logger(__name__)
 
 class CLI:
-    """Command-line interface for the SSH key manager."""
+    """Command-line interface for the KeyCtl."""
 
     def __init__(self):
         self.key_manager = KeyManager()
@@ -20,7 +20,7 @@ class CLI:
     def create_parser(self) -> argparse.ArgumentParser:
         """Create and configure the argument parser."""
         parser = argparse.ArgumentParser(
-            description="SSH Key Manager - A comprehensive SSH key management tool",
+            description="KeyCtl - A comprehensive SSH key management tool",
             formatter_class=argparse.RawDescriptionHelpFormatter
         )
         

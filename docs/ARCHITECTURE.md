@@ -1,8 +1,8 @@
-# SSH Key Manager Architecture
+# KeyCtl Architecture
 
 ## Overview
 
-SSH Key Manager is built with a modular architecture focusing on security, extensibility, and ease of use. The system is divided into several core components, each handling specific aspects of SSH key management.
+KeyCtl is built with a modular architecture focusing on security, extensibility, and ease of use. The system is divided into several core components, each handling specific aspects of SSH key management.
 
 ## Core Components
 
