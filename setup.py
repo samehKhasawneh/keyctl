@@ -11,7 +11,7 @@ setup(
     description="A comprehensive SSH key management tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/keyctl",
+    url="https://github.com/samehKhasawneh/keyctl",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -44,8 +44,8 @@ setup(
         ],
     },
     project_urls={
-        "Bug Reports": "https://github.com/yourusername/keyctl/issues",
-        "Source": "https://github.com/yourusername/keyctl",
-        "Documentation": "https://github.com/yourusername/keyctl/docs",
+        "Bug Reports": "https://github.com/samehKhasawneh/keyctl/issues",
+        "Source": "https://github.com/samehKhasawneh/keyctl",
+        "Documentation": "https://github.com/samehKhasawneh/keyctl/docs",
     },
 ) 

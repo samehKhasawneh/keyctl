@@ -33,20 +33,31 @@ A comprehensive SSH key management tool that helps you create, manage, and maint
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/keyctl.git
-   cd keyctl
-   ```
+### Install as a Python Package
 
-2. Install the package:
-   ```bash
-   pip install -e .
-   ```
-
-For development installation with additional tools:
 ```bash
-pip install -r requirements-dev.txt
+# Clone the repository
+git clone https://github.com/samehKhasawneh/keyctl.git
+cd keyctl
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install the package
+pip install -e .
+```
+
+After installation, you can use the `keyctl` command from anywhere:
+```bash
+# List all available commands
+keyctl --help
+
+# Create a new key
+keyctl create my-key
+
+# List all keys
+keyctl list
 ```
 
 ## Usage
