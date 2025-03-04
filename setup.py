@@ -7,7 +7,7 @@ setup(
     name="keyctl",
     version="0.1.0",
     author="KeyCtl Contributors",
-    author_email="your.email@example.com",
+    author_email="sameh.khasawneh@gmail.com",
     description="A comprehensive SSH key management tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
