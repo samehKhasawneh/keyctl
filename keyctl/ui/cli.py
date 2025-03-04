@@ -288,14 +288,31 @@ class CLI:
                     return 1
                     
                 if parsed_args.config_command == "list":
-                    # Implementation for listing SSH config
-                    pass
+                    config = self.key_manager.get_ssh_config()
+                    if not config:
+                        print("No SSH config found")
+                        return 0
+                    print("\nSSH Config:")
+                    for host, settings in config.items():
+                        print(f"\nHost: {host}")
+                        for key, value in settings.items():
+                            print(f"  {key}: {value}")
+                    return 0
+                    
                 elif parsed_args.config_command == "host":
-                    # Implementation for adding/editing host
-                    pass
+                    success, message = self.key_manager.update_ssh_config(
+                        host=parsed_args.host,
+                        key=parsed_args.key,
+                        user=parsed_args.user,
+                        port=parsed_args.port
+                    )
+                    print(message)
+                    return 0 if success else 1
+                    
                 elif parsed_args.config_command == "remove":
-                    # Implementation for removing host
-                    pass
+                    success, message = self.key_manager.remove_ssh_config(parsed_args.host)
+                    print(message)
+                    return 0 if success else 1
                     
             elif parsed_args.command == "stats":
                 if parsed_args.name:
@@ -322,14 +339,24 @@ class CLI:
                     return 1
                     
                 if parsed_args.expire_command == "set":
-                    self.config.set_key_expiration(parsed_args.name, parsed_args.days)
-                    print(f"Set expiration for {parsed_args.name}")
+                    success, message = self.config.set_key_expiration(parsed_args.name, parsed_args.days)
+                    print(message)
+                    return 0 if success else 1
+                    
                 elif parsed_args.expire_command == "remove":
-                    # Implementation for removing expiration
-                    pass
+                    success, message = self.config.remove_key_expiration(parsed_args.name)
+                    print(message)
+                    return 0 if success else 1
+                    
                 elif parsed_args.expire_command == "check":
-                    # Implementation for checking expirations
-                    pass
+                    expiring_keys = self.config.check_key_expirations()
+                    if not expiring_keys:
+                        print("No keys are expiring soon")
+                        return 0
+                    print("\nKeys Expiring Soon:")
+                    for key_name, days_left in expiring_keys.items():
+                        print(f"{key_name}: {days_left} days remaining")
+                    return 0
                     
             elif parsed_args.command == "repo":
                 if not parsed_args.repo_command:
@@ -395,9 +422,9 @@ class CLI:
                         )
                         if result.returncode == 0:
                             url = result.stdout.strip()
-                            self.config.link_repo_key(url, parsed_args.key_name)
-                            print(f"Linked {parsed_args.key_name} to {url}")
-                            return 0
+                            success, message = self.config.link_repo_key(url, parsed_args.key_name)
+                            print(message)
+                            return 0 if success else 1
                         else:
                             print(f"Failed to get repository URL: {result.stderr}")
                             return 1
@@ -411,7 +438,7 @@ class CLI:
                         key=parsed_args.key
                     )
                     if links:
-                        print("Repository-Key Links:")
+                        print("\nRepository-Key Links:")
                         for repo_url, key_name in links.items():
                             print(f"{repo_url} -> {key_name}")
                     else:

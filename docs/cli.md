@@ -1,88 +1,123 @@
-# Command Line Interface
+# KeyCtl CLI Documentation
+
+## SSH Config Management
+
+### List SSH Config
+```bash
+keyctl config list
+```
+Lists all hosts configured in your SSH config file.
+
+### Add/Edit Host
+```bash
+keyctl config host <host-pattern> [--key KEY] [--user USER] [--port PORT]
+```
+Adds or updates a host configuration in your SSH config file.
+
+Options:
+- `--key`: Path to the identity file
+- `--user`: Username for the host
+- `--port`: Port number for the host
+
+### Remove Host
+```bash
+keyctl config remove <host>
+```
+Removes a host configuration from your SSH config file.
+
+## Key Expiration Management
+
+### Set Key Expiration
+```bash
+keyctl expire set <key-name> <days>
+```
+Sets an expiration date for a key.
+
+### Remove Key Expiration
+```bash
+keyctl expire remove <key-name>
+```
+Removes the expiration date for a key.
+
+### Check Key Expirations
+```bash
+keyctl expire check
+```
+Lists all keys that are expiring soon (within 30 days).
 
 ## Repository Management
 
 ### Clone Repository
 ```bash
-keyctl repo clone <url> [options]
+keyctl repo clone <url> [--key KEY] [--provider PROVIDER] [--path PATH] [--git-email EMAIL] [--git-name NAME]
 ```
-
-Clone a Git repository using a specific SSH key and configure Git user settings.
+Clones a repository using a specific SSH key and configures Git user settings.
 
 Options:
-- `--key KEY`: SSH key to use for cloning
-- `--provider PROVIDER`: Git provider (default: github.com)
-- `--path PATH`: Local path to clone to
-- `--git-email EMAIL`: Configure user.email for the repository
-- `--git-name NAME`: Configure user.name for the repository
-
-The command supports:
-- Full SSH URLs (e.g., git@github.com:username/repo.git)
-- Shorthand notation (e.g., username/repo)
-- Automatic Git user configuration
-- Repository-specific settings
-
-Examples:
-```bash
-# Clone with full URL and Git configuration
-keyctl repo clone git@github.com:username/repo.git \
-  --key id_ed25519_github \
-  --git-email "user@example.com" \
-  --git-name "Your Name"
-
-# Clone with shorthand and Git configuration
-keyctl repo clone username/repo \
-  --key id_ed25519_github \
-  --git-email "user@example.com" \
-  --git-name "Your Name"
-
-# Clone to specific path
-keyctl repo clone username/repo \
-  --key id_ed25519_github \
-  --path ~/projects/repo \
-  --git-email "user@example.com" \
-  --git-name "Your Name"
-```
+- `--key`: SSH key to use
+- `--provider`: Git provider (github.com, gitlab.com, bitbucket.org)
+- `--path`: Local path to clone to
+- `--git-email`: Configure user.email for the repository
+- `--git-name`: Configure user.name for the repository
 
 ### Link Repository
 ```bash
 keyctl repo link <repo-path> <key-name>
 ```
-
-Link an SSH key to a local repository for automatic key selection.
-
-Examples:
-```bash
-# Link from repository directory
-cd ~/projects/repo
-keyctl repo link . id_ed25519_github
-
-# Link by specifying path
-keyctl repo link ~/projects/repo id_ed25519_github
-```
+Links an SSH key to a local repository.
 
 ### List Repository Links
 ```bash
-keyctl repo list-links [options]
+keyctl repo list-links [--repo REPO] [--key KEY]
 ```
-
-List repository-key associations.
+Lists all repository-key associations.
 
 Options:
-- `--repo REPO`: Filter by repository path
-- `--key KEY`: Filter by key name
+- `--repo`: Filter by repository path
+- `--key`: Filter by key name
 
-Examples:
-```bash
-# List all links
-keyctl repo list-links
+## Error Handling
 
-# Filter by key
-keyctl repo list-links --key id_ed25519_github
+KeyCtl provides clear error messages for common issues:
 
-# Filter by repository
-keyctl repo list-links --repo ~/projects/repo
-```
+1. Configuration Errors:
+   - Invalid SSH config file
+   - Missing or invalid key files
+   - Permission issues
+
+2. Security Errors:
+   - Invalid key formats
+   - Weak key types
+   - Expired keys
+
+3. Validation Errors:
+   - Invalid repository URLs
+   - Invalid host patterns
+   - Invalid expiration dates
+
+4. Operation Errors:
+   - Failed Git operations
+   - Failed SSH operations
+   - Failed file operations
+
+## Logging
+
+KeyCtl logs operations to help with troubleshooting:
+
+1. Log File Location:
+   - Default: `~/.keyctl.log`
+   - Configurable via environment variable: `KEYCTL_LOG_FILE`
+
+2. Log Levels:
+   - INFO: Normal operations
+   - WARNING: Potential issues
+   - ERROR: Operation failures
+   - DEBUG: Detailed information
+
+3. Log Format:
+   ```
+   TIMESTAMP - NAME - LEVEL - MESSAGE
+   ```
 
 ## Best Practices
 

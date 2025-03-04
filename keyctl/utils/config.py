@@ -2,7 +2,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 from datetime import datetime, timedelta
 
 from .logger import get_logger
@@ -113,21 +113,53 @@ class Config:
         """Get usage statistics for a key."""
         return self.usage.get(key_name)
 
-    def set_key_expiration(self, key_name: str, days: Optional[int] = None) -> None:
-        """Set expiration date for a key."""
-        if days is None:
-            days = self.config["key_expiry_days"]
+    def set_key_expiration(self, key_name: str, days: int) -> Tuple[bool, str]:
+        """Set expiration for a key."""
+        try:
+            config = self.config
+            config["key_expiration"] = config.get("key_expiration", {})
+            config["key_expiration"][key_name] = {
+                "days": days,
+                "set_date": datetime.now().isoformat()
+            }
+            self._save_config()
+            return True, f"Set {days} days expiration for {key_name}"
+        except Exception as e:
+            error_msg = f"Error setting key expiration: {e}"
+            logger.error(error_msg)
+            return False, error_msg
             
-        expiry_date = (datetime.now() + timedelta(days=days)).isoformat()
-        if key_name not in self.usage:
-            self.usage[key_name] = {"created": datetime.now().isoformat()}
-        self.usage[key_name]["expiry"] = expiry_date
-        self._save_usage()
-
-    def get_key_expiration(self, key_name: str) -> Optional[str]:
-        """Get expiration date for a key."""
-        usage = self.usage.get(key_name, {})
-        return usage.get("expiry")
+    def remove_key_expiration(self, key_name: str) -> Tuple[bool, str]:
+        """Remove expiration for a key."""
+        try:
+            config = self.config
+            if key_name in config["key_expiration"]:
+                del config["key_expiration"][key_name]
+                self._save_config()
+                return True, f"Removed expiration for {key_name}"
+            return False, f"No expiration set for {key_name}"
+        except Exception as e:
+            error_msg = f"Error removing key expiration: {e}"
+            logger.error(error_msg)
+            return False, error_msg
+            
+    def check_key_expirations(self) -> Dict[str, int]:
+        """Check which keys are expiring soon (within 30 days)."""
+        try:
+            config = self.config
+            expiring_keys = {}
+            
+            for key_name, expiration in config["key_expiration"].items():
+                set_date = datetime.fromisoformat(expiration["set_date"])
+                days_left = expiration["days"] - (datetime.now() - set_date).days
+                
+                if 0 < days_left <= 30:
+                    expiring_keys[key_name] = days_left
+                    
+            return expiring_keys
+        except Exception as e:
+            logger.error(f"Error checking key expirations: {e}")
+            return {}
 
     def get_provider_config(self, provider: str) -> Optional[Dict[str, str]]:
         """Get provider-specific configuration."""

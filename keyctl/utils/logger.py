@@ -4,41 +4,57 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-def get_logger(name: str, log_file: Optional[Path] = None) -> logging.Logger:
-    """Configure and return a logger instance."""
-    logger = logging.getLogger(name)
+def setup_logger(
+    log_file: Optional[Path] = None,
+    level: int = logging.INFO,
+    format_string: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+) -> None:
+    """Set up logging configuration."""
+    # Create formatters
+    file_formatter = logging.Formatter(format_string)
+    console_formatter = logging.Formatter('%(levelname)s: %(message)s')
     
-    if not logger.handlers:  # Only configure if not already configured
-        logger.setLevel(logging.INFO)
-        
-        # Create formatters
-        file_formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        console_formatter = logging.Formatter(
-            '%(levelname)s: %(message)s'
-        )
-        
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stderr)
-        console_handler.setFormatter(console_formatter)
-        console_handler.setLevel(logging.WARNING)  # Only warnings and errors to console
-        logger.addHandler(console_handler)
-        
-        # File handler (if log file specified)
-        if log_file:
-            try:
-                # Ensure log directory exists
-                log_file.parent.mkdir(parents=True, exist_ok=True)
-                
-                file_handler = logging.FileHandler(log_file)
-                file_handler.setFormatter(file_formatter)
-                file_handler.setLevel(logging.INFO)  # All logs to file
-                logger.addHandler(file_handler)
-            except Exception as e:
-                logger.error(f"Failed to set up file logging: {e}")
-        
-        # Prevent propagation to root logger
-        logger.propagate = False
+    # Create handlers
+    handlers = []
     
-    return logger 
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(console_formatter)
+    handlers.append(console_handler)
+    
+    # File handler if log file is specified
+    if log_file:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(file_formatter)
+        handlers.append(file_handler)
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    root_logger.handlers = handlers
+
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance with the given name."""
+    return logging.getLogger(name)
+
+# Custom exception classes
+class KeyCtlError(Exception):
+    """Base exception for KeyCtl errors."""
+    pass
+
+class ConfigError(KeyCtlError):
+    """Configuration-related errors."""
+    pass
+
+class SecurityError(KeyCtlError):
+    """Security-related errors."""
+    pass
+
+class ValidationError(KeyCtlError):
+    """Validation-related errors."""
+    pass
+
+class OperationError(KeyCtlError):
+    """Operation-related errors."""
+    pass 

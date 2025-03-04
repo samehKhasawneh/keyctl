@@ -162,4 +162,104 @@ class KeyManager:
                 
             return True, "Key rotated successfully"
         except Exception as e:
-            return False, f"Error rotating key: {str(e)}" 
+            return False, f"Error rotating key: {str(e)}"
+
+    def get_ssh_config(self) -> Dict[str, Dict[str, str]]:
+        """Get the current SSH config."""
+        config_path = Path.home() / ".ssh" / "config"
+        if not config_path.exists():
+            return {}
+            
+        config = {}
+        current_host = None
+        
+        try:
+            with open(config_path, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                        
+                    if line.lower().startswith("host "):
+                        current_host = line.split()[1]
+                        config[current_host] = {}
+                    elif current_host and " " in line:
+                        key, value = line.split(" ", 1)
+                        config[current_host][key] = value
+                        
+            return config
+        except Exception as e:
+            logger.error(f"Error reading SSH config: {e}")
+            return {}
+            
+    def update_ssh_config(
+        self,
+        host: str,
+        key: Optional[str] = None,
+        user: Optional[str] = None,
+        port: Optional[int] = None
+    ) -> Tuple[bool, str]:
+        """Update SSH config for a host."""
+        config_path = Path.home() / ".ssh" / "config"
+        config_dir = config_path.parent
+        
+        try:
+            # Create .ssh directory if it doesn't exist
+            config_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Read existing config
+            config = self.get_ssh_config()
+            
+            # Update host settings
+            if host not in config:
+                config[host] = {}
+                
+            if key:
+                config[host]["IdentityFile"] = key
+            if user:
+                config[host]["User"] = user
+            if port:
+                config[host]["Port"] = str(port)
+                
+            # Write updated config
+            with open(config_path, "w") as f:
+                for host_name, settings in config.items():
+                    f.write(f"Host {host_name}\n")
+                    for key, value in settings.items():
+                        f.write(f"    {key} {value}\n")
+                    f.write("\n")
+                    
+            return True, f"Updated SSH config for {host}"
+        except Exception as e:
+            error_msg = f"Error updating SSH config: {e}"
+            logger.error(error_msg)
+            return False, error_msg
+            
+    def remove_ssh_config(self, host: str) -> Tuple[bool, str]:
+        """Remove host from SSH config."""
+        config_path = Path.home() / ".ssh" / "config"
+        
+        try:
+            # Read existing config
+            config = self.get_ssh_config()
+            
+            # Remove host if it exists
+            if host in config:
+                del config[host]
+                
+                # Write updated config
+                with open(config_path, "w") as f:
+                    for host_name, settings in config.items():
+                        f.write(f"Host {host_name}\n")
+                        for key, value in settings.items():
+                            f.write(f"    {key} {value}\n")
+                        f.write("\n")
+                        
+                return True, f"Removed {host} from SSH config"
+            else:
+                return False, f"Host {host} not found in SSH config"
+                
+        except Exception as e:
+            error_msg = f"Error removing host from SSH config: {e}"
+            logger.error(error_msg)
+            return False, error_msg 

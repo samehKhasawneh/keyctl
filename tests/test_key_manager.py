@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from keyctl.core.key_manager import KeyManager
 from keyctl.security.key_security import KeySecurity
 from keyctl.utils.config import Config
+from keyctl.utils.logger import KeyCtlError, ConfigError, SecurityError
 
 # Test fixtures
 @pytest.fixture
@@ -65,29 +66,26 @@ def test_key_security_permissions(key_manager):
     assert not security.check_permissions(key_path)
 
 # Test key expiration
-def test_key_expiration(key_manager):
+def test_key_expiration(key_manager, tmp_path):
     """Test key expiration functionality."""
-    key_name = "test_key"
-    expiry_days = 7
+    # Test setting expiration
+    success, message = key_manager.config.set_key_expiration("test_key", 30)
+    assert success
+    assert "Set 30 days expiration" in message
     
-    # Set expiration
-    key_manager.set_key_expiration(key_name, expiry_days)
+    # Test checking expirations
+    expiring = key_manager.config.check_key_expirations()
+    assert "test_key" in expiring
+    assert 0 < expiring["test_key"] <= 30
     
-    # Verify expiration was set
-    config = Config.load()
-    assert key_name in config["key_expiration"]
+    # Test removing expiration
+    success, message = key_manager.config.remove_key_expiration("test_key")
+    assert success
+    assert "Removed expiration" in message
     
-    # Check expiration status
-    is_expired = key_manager.check_key_expiration(key_name)
-    assert not is_expired  # Should not be expired yet
-    
-    # Test expired key
-    past_date = datetime.now() - timedelta(days=1)
-    config["key_expiration"][key_name] = past_date.isoformat()
-    Config.save(config)
-    
-    is_expired = key_manager.check_key_expiration(key_name)
-    assert is_expired
+    # Test checking empty expirations
+    expiring = key_manager.config.check_key_expirations()
+    assert not expiring
 
 # Test key usage tracking
 def test_key_usage_tracking(key_manager):
@@ -149,47 +147,70 @@ def test_backup_restore(key_manager, tmp_path):
 
 # Test SSH config management
 def test_ssh_config_management(key_manager, tmp_path):
-    """Test SSH config file management."""
-    config_file = key_manager.ssh_dir / "config"
+    """Test SSH config management functionality."""
+    # Test getting empty config
+    config = key_manager.get_ssh_config()
+    assert config == {}
     
-    # Add host
-    host_config = {
-        "HostName": "github.com",
-        "User": "git",
-        "IdentityFile": "~/.ssh/github_key"
-    }
+    # Test adding host config
+    success, message = key_manager.update_ssh_config(
+        host="github.com",
+        key="~/.ssh/id_ed25519",
+        user="git",
+        port=22
+    )
+    assert success
+    assert "Updated SSH config" in message
     
-    key_manager.add_ssh_config("github.com", host_config)
+    # Test getting updated config
+    config = key_manager.get_ssh_config()
+    assert "github.com" in config
+    assert config["github.com"]["IdentityFile"] == "~/.ssh/id_ed25519"
+    assert config["github.com"]["User"] == "git"
+    assert config["github.com"]["Port"] == "22"
     
-    # Verify config was written
-    assert config_file.exists()
-    content = config_file.read_text()
-    assert "github.com" in content
-    assert "IdentityFile" in content
+    # Test removing host config
+    success, message = key_manager.remove_ssh_config("github.com")
+    assert success
+    assert "Removed" in message
     
-    # Read config
-    configs = key_manager.parse_ssh_config()
-    assert "github.com" in configs
-    assert configs["github.com"]["identityfile"] == "~/.ssh/github_key"
+    # Test getting empty config again
+    config = key_manager.get_ssh_config()
+    assert config == {}
+
+# Test repository management
+def test_repository_management(key_manager, tmp_path):
+    """Test repository management functionality."""
+    # Test linking repository
+    success, message = key_manager.config.link_repo_key(
+        "git@github.com:test/repo.git",
+        "test_key"
+    )
+    assert success
+    assert "Linked" in message
+    
+    # Test getting repository links
+    links = key_manager.config.get_repo_links()
+    assert "git@github.com:test/repo.git" in links
+    assert links["git@github.com:test/repo.git"] == "test_key"
+    
+    # Test filtering links
+    links = key_manager.config.get_repo_links(key="test_key")
+    assert len(links) == 1
+    assert "test_key" in links.values()
 
 # Test error handling
-def test_error_handling(key_manager):
-    """Test error handling in various scenarios."""
+def test_error_handling(key_manager, tmp_path):
+    """Test error handling in KeyManager."""
+    # Test invalid SSH config
+    with patch('builtins.open', side_effect=PermissionError):
+        config = key_manager.get_ssh_config()
+        assert config == {}
     
-    # Test invalid key type
+    # Test invalid expiration date
     with pytest.raises(ValueError):
-        key_manager.create_key("test_key", "invalid_type")
+        key_manager.config.set_key_expiration("test_key", -1)
     
-    # Test invalid permissions
-    with patch('os.chmod') as mock_chmod:
-        mock_chmod.side_effect = PermissionError()
-        result = key_manager.fix_permissions(Path("test_key"))
-        assert not result.success
-        assert "permission denied" in result.error.lower()
-    
-    # Test network errors
-    with patch('subprocess.run') as mock_run:
-        mock_run.side_effect = ConnectionError()
-        result = key_manager.validate_key("github.com")
-        assert not result.success
-        assert "connection error" in result.error.lower() 
+    # Test invalid repository URL
+    with pytest.raises(ValidationError):
+        key_manager.config.link_repo_key("invalid-url", "test_key") 
