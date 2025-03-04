@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from keyctl.core.key_manager import KeyManager
 from keyctl.security.key_security import KeySecurity
 from keyctl.utils.config import Config
-from keyctl.utils.logger import KeyCtlError, ConfigError, SecurityError
+from keyctl.utils.logger import KeyCtlError, ConfigError, SecurityError, ValidationError
 
 # Test fixtures
 @pytest.fixture

@@ -32,7 +32,9 @@ setup(
             "keyctl=keyctl.ui.cli:main",
         ],
     },
-    install_requires=[],
+    install_requires=[
+        "cryptography>=41.0.0",
+    ],
     extras_require={
         "dev": [
             "pytest",
